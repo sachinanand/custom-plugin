@@ -1,0 +1,4 @@
+plugin/.idea
+plugin/*.iml
+plugin/.gradle
+plugin/build
