@@ -1,0 +1,114 @@
+<project name="tms" default="donothing" basedir=".">
+     
+<echo>Project building started, Please wait...</echo>
+<!-- Tell ant to use my environment variables -->
+<property environment="env"/>
+     
+<property name="project.name"        value="tms"/>
+<property name="project.owner"       value="Amresh"/>
+<property name="build.compiler"  value="modern"/>
+<property name="version"         value="1.0"/>
+<property name="web.root.dir"    value="." />
+ 
+<property name="classes.home"  value="${web.root.dir}/WEB-INF/classes" />
+<property name="src.home"        value="${web.root.dir}/src" />
+<property name="lib.home"        value="${web.root.dir}/WEB-INF/lib"/>
+<property name="jsp.home"        value="${web.root.dir}/jsp"/>
+<property name="html.home"       value="${web.root.dir}/html"/>
+<property name="docs.home"       value="${web.root.dir}/docs"/>
+<property name="apidocs.home"    value="${docs.home}/api"/>
+<property name="scripts.home"    value="${web.root.dir}/bin"/>
+<property name="java.home"       value="${env.JAVA_HOME}"/>
+<property name="tomcat.home"     value="${env.CATALINA_HOME}"/>
+ 
+<property name="web-war.file"        value="${project.name}.war"/>
+<property name="web.xml.file"        value="${web.root.dir}/WEB-INF/web.xml"/>
+<property name="ear.file"            value="${project.name}.ear"/>
+<property name="tomcat.deploy.dir"  value="${tomcat.home}/webapps"/>
+<echo>Web Root Directory: ${web.root.dir}</echo>
+<echo>Classes Home: ${classes.home}</echo>
+<path id="project.class.path">
+      <fileset dir="${lib.home}">
+            <include name="**/*.jar"/>
+      </fileset>
+      <pathelement path="${src.home}"/>
+</path>
+ 
+<!-- ************************************************* -->
+<!--       Do Nothing       -->
+<!-- ************************************************* -->
+<target name="donothing">
+      <echo>Do nothing</echo>
+</target>
+ 
+<!-- ************************************************* -->
+<!--       Clean Up                                    -->
+<!-- ************************************************* -->
+<target name="clean" description="clean up" >
+      <echo>Cleaning up...</echo>  
+      <delete file="${tomcat.deploy.dir}/${web-war.file}"/>
+      <delete file="${web.root.dir}/${web-war.file}"/>
+</target>
+     
+<!-- ************************************************* -->
+<!--       Initialization       -->
+<!-- ************************************************* -->
+ 
+<target name="init" depends="clean">
+      <echo>Initializing...(Currently doing nothing)</echo>
+</target>
+     
+<!-- ************************************************* -->
+<!--       Compile the Web  application                -->
+<!-- ************************************************* -->
+<target name="compile-web" depends="init">
+<echo> Compiling web application...</echo>
+      <javac destdir="${classes.home}" debug="on" deprecation="on">
+                  <src path="${src.home}"/>
+                  <exclude name="**/*Test*"/>
+                  <classpath refid="project.class.path"/>
+      </javac>   
+      <copy todir="${classes.home}">
+      <fileset dir="${src.home}">
+        <include name="**/*.properties"/>
+      </fileset>
+    </copy>
+</target>
+ 
+<!-- ************************************************* -->
+<!--       Make WAR file of the Web application        -->
+<!-- ************************************************* -->
+ 
+<target name="dist-web" depends="compile-web">
+<echo>Building WAR file for Web Application...</echo>
+      <war destfile="${web.root.dir}/${web-war.file}" webxml="${web.xml.file}">
+            <fileset dir="${web.root.dir}">
+                  <include name="images/**"/>
+                  <include name="stylesheets/**"/>               
+                  <include name="htm/**"/>
+                  <include name="js/**"/>
+                  <include name="WEB-INF/lib/**"/>
+                  <include name="WEB-INF/*.xml"/>
+                  <include name="WEB-INF/classes/*.xml"/>
+                  <include name="WEB-INF/*.tld"/>
+                  <include name="WEB-INF/classes/**"/>                 
+                  <include name="jsp/**"/>
+                  <include name="*.jsp"/>            
+                  <exclude name="**/*Test*"/>
+                  <exclude name="src/**"/>
+        </fileset>
+      </war>
+</target>
+ 
+<!-- ************************************************* -->
+<!--       Deploy Web Application in web container     -->
+<!-- ************************************************* -->
+ 
+<target name="deploy-tomcat" depends="dist-web">
+     
+      <copy todir="${tomcat.deploy.dir}">
+      <fileset file="${web.root.dir}/${web-war.file}"/>
+    </copy>
+</target>
+     
+</project>
